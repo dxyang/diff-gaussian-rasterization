@@ -304,7 +304,9 @@ renderCUDA(
 	uint32_t contributor = 0;
 	uint32_t last_contributor = 0;
 	float C[CHANNELS] = { 0 };
-	float D = 0.0f
+	// float D = 0.0f; // mean depth
+	float D = 15.0f; // median depth
+
 
 	// Iterate over batches until all done or range is complete
 	for (int i = 0; i < rounds; i++, toDo -= BLOCK_SIZE)
@@ -359,8 +361,16 @@ renderCUDA(
 			for (int ch = 0; ch < CHANNELS; ch++)
 				C[ch] += features[collected_id[j] * CHANNELS + ch] * alpha * T;
 
-			float dep = collected_depth[j];
-			D += dep * alpha * T;
+			// mean depth
+			// float dep = collected_depth[j];
+			// D += dep * alpha * T;
+
+			// median depth
+			if (T > 0.5f && test_T < 0.5)
+			{
+				float dep = collected_depth[j];
+				D = dep;
+			}
 
 			T = test_T;
 
